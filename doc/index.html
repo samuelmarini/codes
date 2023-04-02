@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            // ... suas configurações do Firebase aqui ...
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        firebase.analytics();
+        const database = firebase.database();
+    </script>
+    <!-- ... mesmo head do exemplo anterior ... -->
+</head>
+<body>
+    <!-- ... mesmo HTML do exemplo anterior ... -->
+    <script>
+        function adicionarPostagem() {
+            const nome = document.getElementById("nome").value;
+            const conteudo = document.getElementById("conteudo").value;
+
+            if (nome.trim() === "" || conteudo.trim() === "") {
+                alert("Por favor, preencha todos os campos.");
+                return;
+            }
+
+            const novaPostagem = {
+                nome: nome,
+                conteudo: conteudo,
+                dataHora: new Date().toLocaleString(),
+            };
+
+            database.ref("postagens").push(novaPostagem);
+
+            document.getElementById("nome").value = "";
+            document.getElementById("conteudo").value = "";
+        }
+
+        function atualizarPostagens() {
+            const containerPostagens = document.getElementById("postagens");
+            containerPostagens.innerHTML = "";
+
+            database.ref("postagens").on("child_added", (postagemSnapshot) => {
+                const postagem = postagemSnapshot.val();
+                const postId = postagemSnapshot.key;
+
+                const divPostagem = document.createElement("div");
+                divPostagem.classList.add("postagem");
+
+                const autor = document.createElement("h2");
+                autor.textContent = postagem.nome;
+                divPostagem.appendChild(autor);
+
+                const dataHora = document.createElement("p");
+                dataHora.textContent = postagem.dataHora;
+                divPostagem.appendChild(dataHora);
+
+                const texto = document.createElement("p");
+                texto.textContent = postagem.conteudo;
+                divPostagem.appendChild(texto);
+
+                const botaoDeletar = document.createElement("button");
+                botaoDeletar.textContent = "Deletar";
+                botaoDeletar.addEventListener("click", () => deletarPostagem(postId));
+                divPostagem.appendChild(botaoDeletar);
+
+                containerPostagens.appendChild(divPostagem);
+            });
+        }
+
+        function deletarPostagem(postId) {
+            const confirmacao = confirm("Tem certeza de que deseja deletar esta postagem?");
+            if (confirmacao) {
+                database.ref("postagens/" + postId).remove();
+            }
+        }
+
+        // Atualizar postagens assim que a página for carregada
+        atualizarPostagens();
+    </script>
+</body>
+</html>
+
