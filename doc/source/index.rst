@@ -8,8 +8,8 @@ Welcome to TP-SPW's documentation!
    :caption: Contents:
 
    introduction
-   .. useful_tools
-   .. handout
+   useful_tools
+   handout
 
 
 
